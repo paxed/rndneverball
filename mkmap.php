@@ -38,7 +38,7 @@ function read_config($fname)
   foreach ($cnf as $line) {
     if (preg_match('/^[ \t]*#/', $line)) continue;
     if (preg_match('/^[ \t]*START[ \t]*=[ \t]*(.+)$/', $line, $match)) {
-	$config['START'] = array_merge(isset($config['START']) ? $config['START'] : array(), split(",", $match[1]));
+	$config['START'] = array_merge(isset($config['START']) ? $config['START'] : array(), explode(",", $match[1]));
     } else if (preg_match('/^[ \t]*MAPDIR[ \t]*=[ \t]*(.+)$/', $line, $match)) {
       $config['MAPDIR'] = trim($match[1]);
     } else if (preg_match('/^[ \t]*MAP:(.+)[ \t]*=[ \t]*(.+)$/', $line, $match)) {
@@ -46,7 +46,7 @@ function read_config($fname)
       array_shift($match);
       preg_match('/\((-?[0-9]+),(-?[0-9]+),(-?[0-9]+)\)-\((-?[0-9]+),(-?[0-9]+),(-?[0-9]+)\)[ \t]+(.+)$/', $match[1], $size);
       array_shift($size);
-      $config['MAPS'][$mapname]['files'] = split("\|", $size[6]);
+      $config['MAPS'][$mapname]['files'] = explode("|", $size[6]);
       unset($size[6]);
 
       $size = sort6($size);
@@ -56,16 +56,16 @@ function read_config($fname)
 	  $config['MAPS'][$mapname]['size'] = $size;
     } else if (preg_match('/^[ \t]*DEF:(.+)[ \t]*=[ \t]*(.+)$/', $line, $match)) {
       $mapname = trim($match[1]);
-      $tmp = split("\|", $match[2]);
+      $tmp = explode("|", $match[2]);
 
-      $mf = split("/", trim($tmp[0]));
+      $mf = explode("/", trim($tmp[0]));
 
       $config['PARTS'][$mapname]['mapfile'] = trim($mf[0]);
       array_shift($mf);
       $config['PARTS'][$mapname]['caps'] = $mf;
       array_shift($tmp);
       foreach ($tmp as $l) {
-	$config['PARTS'][$mapname]['linkage'][] = split("/", $l);
+	$config['PARTS'][$mapname]['linkage'][] = explode("/", $l);
       }
     } else if (!preg_match('/^[ \t]*$/', $line)) {
     	print "Error while reading the config file. Sorry.";
