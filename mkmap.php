@@ -250,8 +250,8 @@ function output_map($config, $maxlen, &$map_length, $seed=NULL)
 
   $map_length = count($rndmap);
 
-  $ret = " // Random NeverPutt .map - http://bilious.homelinux.org/~paxed/rndneverball/\n";
-  $ret .= " // .map date: ".date("Ymd H:i:s")."\n";
+  $ret = " // Random NeverPutt .map - http://bilious.alt.org/~paxed/rndneverball/\n";
+  $ret .= " // .map date: ".date("Y-m-d H:i:s")."\n";
   if ($seed)
     $ret .= " // .map seed: ".$seed."\n";
   $ret .= " // .map maxlen: ".$maxlen."\n";
