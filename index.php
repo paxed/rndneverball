@@ -120,6 +120,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $fname = sprintf("%s/holes-rnd%s.txt", $tempdir_base, $coursebase);
   $filelist[] = $fname;
   $fh = fopen($fname, "w");
+  fwrite($fh, "rndmap-$coursebase/rndmap.jpg\n");
+  fwrite($fh, "Randomly generated\\$num_levels hole course\\\\\\\n");
   for ($x = 0; $x < $num_levels; $x++) {
     $num_shots = 12;
     if ($num_shots > $map_pars[$x]) $num_shots = $map_pars[$x];
@@ -138,6 +140,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   foreach ($filelist as $tmp) {
     $f[] = substr($tmp, strlen($tempdir_base)+1);
   }
+
+  copy('rndmap.jpg', $tempdir_base."/rndmap-$coursebase/rndmap.jpg");
+  $f[] = "rndmap-$coursebase/rndmap.jpg";
 
   chdir($tempdir_base);
 
