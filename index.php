@@ -3,6 +3,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors','On');
 
+date_default_timezone_set('UTC');
 
 function query_str($params, $sep='&amp;', $quoted=0, $encode=1)
 {
