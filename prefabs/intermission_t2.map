@@ -1,0 +1,17 @@
+
+// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "target_position"
+"targetname" "intermission_t2"
+"origin" "232 -64 48"
+}
+// entity 2
+{
+"classname" "info_player_intermission"
+"target" "intermission_t2"
+"origin" "168 504 256"
+}

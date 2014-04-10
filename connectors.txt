@@ -1,0 +1,112 @@
+# lines beginning with '#' are comments.
+
+
+#
+# TODO:
+# -weights for the forks: 20*NONE / 3*link / link2
+# -need a way to repeat a DEF selection X times, eg:
+#  linkage = fork1:(size) + fork2:(size) / fork3:(size)
+# -costs for the maps. each of the map-files should have an associated cost
+#  total of which the building script will return.
+# -allow different goal types... need to check if the goal fits in there...
+
+
+# this is the dir where the .map-files are. only define one MAPDIR.
+MAPDIR=./prefabs/
+
+
+# Define prefab map extends (the area which is blocked by the prefab) and the files:
+# MAP:prefab_name=blocking_area mapfile1 | mapfile2 | mapfile3 | ...
+# each mapfile must be the same size and have the same connections, so mainly some small
+# structural differences are allowed.
+
+#   name        size                       map(s)
+MAP:start1.map=(-64,-64,-64)-(192,128,192) start1.map
+MAP:road_a.map=(-64,0,-64)-(192,128,192)   road_a.map | road_a2.map | road_a3.map | road_a4.map | road_a5.map | road_a_hole1.map | road_a_hole2.map | road_a6a.map | road_a6b.map | road_a7.map | road_a8.map | road_a_centerhole.map | road_a9_1.map | road_a9_2.map | road_a10.map | road_a11.map | road_a12.map | road_a13.map
+MAP:road_b.map=(0,-64,-64)-(128,192,192)   road_b.map | road_b2.map | road_b3.map | road_b4.map | road_b5.map | road_b6.map | road_b7.map | road_b8.map | road_b_centerhole.map | road_b9_1.map | road_b9_2.map | road_b10.map | road_b13.map
+MAP:turn_a.map=(-128,0,-64)-(192,320,192)  turn_a.map | turn_a2.map | turn_a3.map | turn_a4.map | turn_a5.map
+MAP:turn_b.map=(0,-64,-64)-(320,256,192)   turn_b.map | turn_b2.map | turn_b3.map | turn_b4.map | turn_b5.map
+MAP:turn_c.map=(-64,-320,-64)-(256,0,192)  turn_c.map | turn_c2.map | turn_c3.map | turn_c4.map | turn_c5.map
+MAP:turn_d.map=(-320,-256,-64)-(0,64,192)  turn_d.map | turn_d2.map | turn_d3.map | turn_d4.map | turn_d5.map
+MAP:hump_a.map=(-64,0,-64)-(192,256,192)   hump_a.map | hump_a2.map | hump_a2_2.map
+MAP:hump_b.map=(0,-64,-64)-(256,192,192)   hump_b.map | hump_b2.map | hump_b2_2.map
+
+MAP:ramp_a.map=(-64,0,-64)-(192,256,192)   ramp_a.map | ramp_a.map | ramp_a.map | ramp_a2.map
+MAP:ramp_b.map=(-256,-64,-128)-(0,192,128) ramp_b.map
+MAP:intermission1.map=(0,0,0)-(0,0,0)      intermission_t1.map
+MAP:intermission2.map=(0,0,0)-(0,0,0)      intermission_t2.map
+
+# special tag, START. we'll start the connector from this.
+# could be a comma separated list. We'll choose one of them to start with.
+START = intermission1
+# or we can define as many of these as we want.
+
+#START = test
+
+# define the map stuff.
+# DEF:part_name = prefab_name | linkage | linkage | ...
+# linkage = fork / fork / fork / ...
+# fork = "NONE" or "part_name:(shift)"
+# NONE ends the connection.
+#
+# for each linkage, a random fork is taken.
+
+# start
+DEF:start1 = start1.map | road_a_n:(0, 128, 0) / turn_a_n_w:(0, 128, 0) / turn_a_n_e:(256, 384, 0) / hump_a_n:(0, 128, 0) / ramp_a_n:(0, 128, 0)
+
+# we actually start from here, because we need to put the intermissions in place, once per level.
+DEF:intermission1 = intermission1.map | intermission2:(0,0,0)
+DEF:intermission2 = intermission2.map | start1:(0,0,0)
+
+
+# ramp up, north
+DEF:ramp_a_n = ramp_a.map / goal_a.map:(0,256,64) | ramp_a_n:(0, 256, 64) / road_a_n:(0, 256, 64) / road_a_n:(0, 256, 64) / turn_a_n_w:(0, 256, 64) / turn_a_n_e:(256, 512, 64)
+# / hump_a_n:(0, 256, 64)
+# ramp down, south
+DEF:ramp_a_s = ramp_a.map / goal_c.map:(0,0,0) | ramp_a_s:(0, -256, -64) / road_a_s:(0, -128, 0) / road_a_s:(0, -128, 0) / turn_a_s_w:(-128, -256, 0) / turn_a_s_e:(0, 0, 0)
+# / hump_a_s:(0, -256, 0)
+# ramp down, west
+DEF:ramp_a_w = ramp_b.map / goal_d.map:(-256,0,-64) | ramp_a_w:(-256, 0, -64) / road_a_w:(-384, 0, -64) / road_a_w:(-384, 0, -64) / turn_a_w_s:(-256, 128, -64) / turn_a_w_n:(-512, 256, -64)
+# / hump_a_w:(-512, 0, -64)
+
+
+
+
+# road north
+DEF:road_a_n = road_a.map / goal_a.map:(0,128,0) | road_a_n:(0, 128, 0) / turn_a_n_w:(0, 128, 0) / turn_a_n_e:(256, 384, 0) / hump_a_n:(0, 128, 0) / ramp_a_n:(0, 128, 0)
+# road south
+DEF:road_a_s = road_a.map / goal_c.map:(0,0,0) | road_a_s:(0, -128, 0) / turn_a_s_w:(-128, -256, 0) / turn_a_s_e:(0, 0, 0) / hump_a_s:(0, -256, 0) / ramp_a_s:(0, -256, -64)
+# road west
+DEF:road_a_w = road_b.map / goal_d.map:(0,0,0) | road_a_w:(-128, 0, 0) / turn_a_w_s:(0, 128, 0) / turn_a_w_n:(-256, 256, 0) / hump_a_w:(-256, 0, 0) / ramp_a_w:(0, 0, 0)
+# road east
+DEF:road_a_e = road_b.map / goal_b.map:(128,0,0) | road_a_e:(128, 0, 0) / turn_a_e_n:(128, 0, 0) / turn_a_e_s:(256, -128, 0) / hump_a_e:(128, 0, 0)
+
+
+
+# humps
+DEF:hump_a_n = hump_a.map / goal_a.map:(0,256,0) | hump_a_n:(0, 256, 0) / road_a_n:(0, 256, 0) / road_a_n:(0, 256, 0) / turn_a_n_w:(0, 256, 0) / turn_a_n_e:(256, 512, 0) / ramp_a_n:(0, 256, 0)
+DEF:hump_a_s = hump_a.map / goal_c.map:(0,0,0) | hump_a_s:(0, -256, 0) / road_a_s:(0, -128, 0) / road_a_s:(0, -128, 0) / turn_a_s_w:(-128, -256, 0) / turn_a_s_e:(0, 0, 0) / ramp_a_s:(0, -256, -64)
+DEF:hump_a_w = hump_b.map / goal_d.map:(0,0,0) | hump_a_w:(-256, 0, 0) / road_a_w:(-128, 0, 0) / road_a_w:(-128, 0, 0) / turn_a_w_s:(0, 128, 0) / turn_a_w_n:(-256, 256, 0) / ramp_a_w:(0, 0, 0)
+DEF:hump_a_e = hump_b.map / goal_b.map:(256,0,0) | hump_a_e:(256, 0, 0) / road_a_e:(256, 0, 0) / road_a_e:(256, 0, 0) / turn_a_e_n:(256, 0, 0) / turn_a_e_s:(384, -128, 0)
+
+
+# e->n
+#DEF:test  = turn_b.map / goal_a.map:(128,256,0) | test1:(384, 512, 0)
+# n->e
+#DEF:test1 = turn_d.map / goal_b.map:(0,-128,0) | test:(0, -128, 0)
+
+
+# turns, ccw
+DEF:turn_a_n_w = turn_a.map / goal_d.map:(-128,128,0) | turn_a_w_s:(-128, 256, 0) / turn_a_w_n:(-384, 384, 0) / road_a_w:(-256, 128, 0) / road_a_w:(-256, 128, 0) / hump_a_w:(-384, 128, 0) / ramp_a_w:(-128, 128, 0)
+DEF:turn_a_w_s = turn_d.map / goal_c.map:(-256,-256,0) | turn_a_s_e:(-256, -256, 0) / turn_a_s_w:(-384, -512, 0) / road_a_s:(-256, -384, 0) / road_a_s:(-256, -384, 0) / hump_a_s:(-256, -512, 0) / ramp_a_s:(-256,-512, -64)
+DEF:turn_a_s_e = turn_c.map / goal_b.map:(256,-256,0) | turn_a_e_n:(256, -256, 0) / turn_a_e_s:(384, -384, 0) / road_a_e:(256, -256, 0) / road_a_e:(256, -256, 0) / hump_a_e:(256, -256, 0)
+DEF:turn_a_e_n = turn_b.map / goal_a.map:(128,256,0) | turn_a_n_w:(128, 256, 0) / turn_a_n_e:(384, 512, 0) / road_a_n:(128, 256, 0) / road_a_n:(128, 256, 0) / hump_a_n:(128, 256, 0) / ramp_a_n:(128, 256, 0)
+
+# turns, cw
+DEF:turn_a_w_n = turn_c.map / goal_a.map:(0,0,0) | turn_a_n_e:(256, 256, 0) / turn_a_n_w:(0, 0, 0) / road_a_n:(0, 0, 0) / road_a_n:(0, 0, 0) / hump_a_n:(0, 0, 0) / ramp_a_n:(0, 0, 0)
+DEF:turn_a_n_e = turn_d.map / goal_b.map:(0,-128,0) | turn_a_e_s:(128, -256, 0) / turn_a_e_n:(0, -128, 0) / road_a_e:(0, -128, 0) / road_a_e:(0, -128, 0) / hump_a_e:(0, -128, 0)
+DEF:turn_a_e_s = turn_a.map / goal_c.map:(0,0,0) | turn_a_s_w:(-128, -256, 0) / turn_a_s_e:(0, 0, 0) / road_a_s:(0, -128, 0) / road_a_s:(0, -128, 0) / hump_a_s:(0, -256, 0) / ramp_a_s:(0, -256, -64)
+DEF:turn_a_s_w = turn_b.map / goal_d.map:(0,0,0) | turn_a_w_n:(-256, 256, 0) / turn_a_w_s:(0, 128, 0) / road_a_w:(-128, 0, 0) / road_a_w:(-128, 0, 0) / hump_a_w:(-256, 0, 0) / ramp_a_w:(0, 0, 0)
+
+
+
