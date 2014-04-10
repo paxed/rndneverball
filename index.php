@@ -180,7 +180,7 @@ header('Content-type: text/html; charset=iso-8859-1');
 </span>
 
 <p>Just click Generate, and you\'ll get a tar.gz packed file which contains the course .map files, and the txt file describing the course.
-<p><b>NOTE: It will take few seconds, so wait for the script to finish instead of clicking several times on the button.</b>
+Unpack the files into the neverputt data-dir.
 <p>You will have to compile the map-files into sol-files with the mapc-program that comes with neverputt and
 manually edit the <span style="background:lightgrey;font-family:monospace">courses.txt</span> to include the new course.
 <p>
@@ -216,5 +216,7 @@ echo rndmap-12345 >> data/courses.txt
 <tr><td><input type="Submit" value="Generate"></td><td></td></tr>
 </table>
 </form>
+
+<p><b>NOTE: The course generation will take a few seconds, so wait for the script to finish instead of clicking several times on the button.</b>
 
 </body></html>
