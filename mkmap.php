@@ -38,7 +38,7 @@ function read_config($fname)
   foreach ($cnf as $line) {
     if (preg_match('/^[ \t]*#/', $line)) continue;
     if (preg_match('/^[ \t]*START[ \t]*=[ \t]*(.+)$/', $line, $match)) {
-      $config['START'] = array_merge($config['START'], split(",", $match[1]));
+	$config['START'] = array_merge(isset($config['START']) ? $config['START'] : array(), split(",", $match[1]));
     } else if (preg_match('/^[ \t]*MAPDIR[ \t]*=[ \t]*(.+)$/', $line, $match)) {
       $config['MAPDIR'] = trim($match[1]);
     } else if (preg_match('/^[ \t]*MAP:(.+)[ \t]*=[ \t]*(.+)$/', $line, $match)) {
@@ -52,8 +52,8 @@ function read_config($fname)
       $size = sort6($size);
 
       if ($size[0] == $size[3] && $size[1] == $size[4] && $size[2] == $size[5]) { unset($size); }
-
-      $config['MAPS'][$mapname]['size'] = $size;
+      else
+	  $config['MAPS'][$mapname]['size'] = $size;
     } else if (preg_match('/^[ \t]*DEF:(.+)[ \t]*=[ \t]*(.+)$/', $line, $match)) {
       $mapname = trim($match[1]);
       $tmp = split("\|", $match[2]);
@@ -171,8 +171,8 @@ function build_map($config, $maxlen=NULL)
 	exit;
       }
 
-      $tmp = $config['MAPS'][$config['PARTS'][$curmap]['mapfile']]['size'];
-      if (isset($tmp)) {
+      if (isset($config['MAPS'][$config['PARTS'][$curmap]['mapfile']]['size'])) {
+        $tmp = $config['MAPS'][$config['PARTS'][$curmap]['mapfile']]['size'];
 	$tmp[0] += intval($curpos[0]);
 	$tmp[1] += intval($curpos[1]);
 	$tmp[2] += intval($curpos[2]);
@@ -267,5 +267,3 @@ function output_map($config, $maxlen, &$map_length, $seed=NULL)
   }
   return $ret;
 }
-
-?>

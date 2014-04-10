@@ -1,5 +1,9 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set('display_errors','On');
+
+
 function query_str($params, $sep='&amp;', $quoted=0, $encode=1)
 {
   $str = '';
@@ -210,4 +214,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   print '</body></html>';
 
  }
-?>
