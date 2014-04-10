@@ -3,7 +3,6 @@
 /*
  TODO:
 
--cache the map-file contents?
 -handle moving parts
 */
 
@@ -164,12 +163,7 @@ function build_map($config, $maxlen=NULL)
       if (is_array($tmp))
 	$fname = $config['MAPDIR'].trim($tmp[array_rand($tmp)]);
       else $fname = $tmp;
-      if (file_exists($fname)) {
-	$ret[] = array($fname, $curpos[0], $curpos[1], $curpos[2]);
-      } else {
-	print " // .map ERROR: Nonexistent map file: ".$fname."\n";
-	exit;
-      }
+      $ret[] = array($fname, $curpos[0], $curpos[1], $curpos[2]);
 
       if (isset($config['MAPS'][$config['PARTS'][$curmap]['mapfile']]['size'])) {
         $tmp = $config['MAPS'][$config['PARTS'][$curmap]['mapfile']]['size'];
@@ -246,6 +240,8 @@ function output_map($config, $maxlen, &$map_length, $seed=NULL)
   if ($seed)
     srand($seed);
 
+  $fcache = array();
+
   $rndmap = build_map($config, $maxlen);
 
   $map_length = count($rndmap);
@@ -258,9 +254,23 @@ function output_map($config, $maxlen, &$map_length, $seed=NULL)
   $ret .= " // .map blocks: ".$map_length."\n";
 
   foreach ($rndmap as $tmp) {
-    $ret .= " // random .map part: ".$tmp[0]." @ (".$tmp[1].", ".$tmp[2].", ".$tmp[3].")\n";
-    $mapfiledata = @file($tmp[0]);
+
+    $fname = $tmp[0];
     array_shift($tmp);
+
+    $ret .= " // random .map part: ".$fname." @ (".$tmp[0].", ".$tmp[1].", ".$tmp[2].")\n";
+
+    if (!isset($fcache[$fname])) {
+	if (file_exists($fname)) {
+	    $fcache[$fname] = @file($fname);
+	} else {
+	    $ret .= " // .map ERROR: Nonexistent map file: ".$fname."\n";
+	    return $ret;
+	}
+    }
+
+    $mapfiledata = $fcache[$fname];
+
     foreach (shift_mapdata($mapfiledata, $tmp) as $line) {
       $ret .= $line;
     }
