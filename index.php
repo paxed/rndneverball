@@ -179,7 +179,7 @@ header('Content-type: text/html; charset=iso-8859-1');
 <img src="rnd2.png" alt="example level">
 </span>
 
-<p>Just click Generate, and you\'ll get a tar.gz packed file which contains the course .map files, and the txt file describing the course.
+<p>Just click Generate, and you'll get a tar.gz packed file which contains the course .map files, and the txt file describing the course.
 Unpack the files into the neverputt data-dir.
 <p>You will have to compile the map-files into sol-files with the mapc-program that comes with neverputt and
 manually edit the <span style="background:lightgrey;font-family:monospace">courses.txt</span> to include the new course.
