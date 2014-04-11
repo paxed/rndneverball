@@ -76,7 +76,7 @@ function read_config($fname)
   return $config;
 }
 
-function shift_mapdata($data, $shifts)
+function shift_mapdata($data, $shifts, $uid)
 {
   $ret = array();
   foreach ($data as $line) {
@@ -88,6 +88,10 @@ function shift_mapdata($data, $shifts)
     } else if (preg_match('/^"origin" "([-0-9]+) ([-0-9]+) ([-0-9]+)"$/', $line, $match)) {
       $tmp = '"origin" "'.($match[1]+$shifts[0]).' '.($match[2]+$shifts[1]).' '.($match[3]+$shifts[2]).'"';
       $ret[] .= $tmp."\n";
+    } else if (preg_match('/^"target" "(.+)"$/', $line, $match)) {
+	$ret[] .= '"target" "'.$match[1].'_'.$uid.'"'."\n";
+    } else if (preg_match('/^"targetname" "(.+)"$/', $line, $match)) {
+	$ret[] .= '"targetname" "'.$match[1].'_'.$uid.'"'."\n";
     } else $ret[] .= $line;
   }
   return $ret;
@@ -244,6 +248,8 @@ function output_map($config, $maxlen, &$map_length, $seed=NULL)
   if ($seed)
     srand($seed);
 
+  $uid = 0;
+
   $rndmap = build_map($config, $maxlen);
 
   $map_length = count($rndmap);
@@ -273,9 +279,10 @@ function output_map($config, $maxlen, &$map_length, $seed=NULL)
 
     $mapfiledata = $prefab_cache[$fname];
 
-    foreach (shift_mapdata($mapfiledata, $tmp) as $line) {
+    foreach (shift_mapdata($mapfiledata, $tmp, $uid) as $line) {
       $ret .= $line;
     }
+    $uid++;
   }
   return $ret;
 }

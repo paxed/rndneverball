@@ -25,7 +25,7 @@ MAPDIR=./prefabs/
 
 #   name        size                       map(s)
 MAP:start1.map=(-64,-64,-64)-(192,128,192) start1.map
-MAP:road_a.map=(-64,0,-64)-(192,128,192)   road_a.map | road_a2.map | road_a3.map | road_a4.map | road_a5.map | road_a_hole1.map | road_a_hole2.map | road_a6a.map | road_a6b.map | road_a7.map | road_a8.map | road_a_centerhole.map | road_a9_1.map | road_a9_2.map | road_a10.map | road_a11.map | road_a12.map | road_a13.map
+MAP:road_a.map=(-64,0,-64)-(192,128,192)   road_a.map | road_a2.map | road_a3.map | road_a4.map | road_a5.map | road_a_hole1.map | road_a_hole2.map | road_a6a.map | road_a6b.map | road_a7.map | road_a8.map | road_a_centerhole.map | road_a9_1.map | road_a9_2.map | road_a10.map | road_a11.map | road_a12.map | road_a13.map | road_a14.map
 MAP:road_b.map=(0,-64,-64)-(128,192,192)   road_b.map | road_b2.map | road_b3.map | road_b4.map | road_b5.map | road_b6.map | road_b7.map | road_b8.map | road_b_centerhole.map | road_b9_1.map | road_b9_2.map | road_b10.map | road_b13.map
 MAP:turn_a.map=(-128,0,-64)-(192,320,192)  turn_a.map | turn_a2.map | turn_a3.map | turn_a4.map | turn_a5.map
 MAP:turn_b.map=(0,-64,-64)-(320,256,192)   turn_b.map | turn_b2.map | turn_b3.map | turn_b4.map | turn_b5.map
