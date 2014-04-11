@@ -72,21 +72,19 @@ function read_config($fname)
 
 function shift_mapdata($data, $shifts, $uid)
 {
-  $ret = array();
+  $ret = '';
   foreach ($data as $line) {
     if (preg_match('/^\( (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) \) \( (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) \) \( (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) \) (.+)$/', $line, $match)) {
-      $tmp = "( ".($match[1]+$shifts[0])." ".($match[2]+$shifts[1])." ".($match[3]+$shifts[2])." ) ( ".
-	($match[4]+$shifts[0])." ".($match[5]+$shifts[1])." ".($match[6]+$shifts[2])." ) ( ".
-	($match[7]+$shifts[0])." ".($match[8]+$shifts[1])." ".($match[9]+$shifts[2])." ) ".$match[10];
-      $ret[] .= $tmp."\n";
+	$ret .= '( '.($match[1]+$shifts[0]).' '.($match[2]+$shifts[1]).' '.($match[3]+$shifts[2]).' ) ( '.
+	    ($match[4]+$shifts[0]).' '.($match[5]+$shifts[1]).' '.($match[6]+$shifts[2]).' ) ( '.
+	    ($match[7]+$shifts[0]).' '.($match[8]+$shifts[1]).' '.($match[9]+$shifts[2]).' ) '.$match[10]."\n";
     } else if (preg_match('/^"origin" "([-0-9]+) ([-0-9]+) ([-0-9]+)"$/', $line, $match)) {
-      $tmp = '"origin" "'.($match[1]+$shifts[0]).' '.($match[2]+$shifts[1]).' '.($match[3]+$shifts[2]).'"';
-      $ret[] .= $tmp."\n";
+	$ret .= '"origin" "'.($match[1]+$shifts[0]).' '.($match[2]+$shifts[1]).' '.($match[3]+$shifts[2]).'"'."\n";
     } else if (preg_match('/^"target" "(.+)"$/', $line, $match)) {
-	$ret[] .= '"target" "'.$match[1].'_'.$uid.'"'."\n";
+	$ret .= '"target" "'.$match[1].'_'.$uid.'"'."\n";
     } else if (preg_match('/^"targetname" "(.+)"$/', $line, $match)) {
-	$ret[] .= '"targetname" "'.$match[1].'_'.$uid.'"'."\n";
-    } else $ret[] .= $line;
+	$ret .= '"targetname" "'.$match[1].'_'.$uid.'"'."\n";
+    } else $ret .= $line;
   }
   return $ret;
 }
@@ -272,10 +270,7 @@ function output_map($config, $maxlen, &$map_length, $seed=NULL)
     }
 
     $mapfiledata = $prefab_cache[$fname];
-
-    foreach (shift_mapdata($mapfiledata, $tmp, $uid) as $line) {
-      $ret .= $line;
-    }
+    $ret .= shift_mapdata($mapfiledata, $tmp, $uid);
     $uid++;
   }
   return $ret;

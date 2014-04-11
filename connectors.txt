@@ -40,7 +40,7 @@ MAP:ramp_b.map=(-256,-64,-128)-(0,192,128) ramp_b.map
 MAP:intermission1.map=(0,0,0)-(0,0,0)      intermission_t1.map
 MAP:intermission2.map=(0,0,0)-(0,0,0)      intermission_t2.map
 
-# Define the START. This is a DEF (defined below) which is used to start the generation.
+# Define the START. This is a DEF (defined below) from which a course generation is started.
 # could be a comma separated list. We'll choose one of them at random.
 START = intermission1
 # or we can define as many of these as we want - we'll pick one at random when starting the generation.
