@@ -74,11 +74,11 @@ function shift_mapdata($data, $shifts, $uid)
 {
   $ret = '';
   foreach ($data as $line) {
-    if (preg_match('/^\( (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) \) \( (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) \) \( (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) \) (.+)$/', $line, $match)) {
+    if (preg_match('/^\( (-?[0-9.]+) (-?[0-9.]+) (-?[0-9.]+) \) \( (-?[0-9.]+) (-?[0-9.]+) (-?[0-9.]+) \) \( (-?[0-9.]+) (-?[0-9.]+) (-?[0-9.]+) \) (.+)$/', $line, $match)) {
 	$ret .= '( '.($match[1]+$shifts[0]).' '.($match[2]+$shifts[1]).' '.($match[3]+$shifts[2]).' ) ( '.
 	    ($match[4]+$shifts[0]).' '.($match[5]+$shifts[1]).' '.($match[6]+$shifts[2]).' ) ( '.
 	    ($match[7]+$shifts[0]).' '.($match[8]+$shifts[1]).' '.($match[9]+$shifts[2]).' ) '.$match[10]."\n";
-    } else if (preg_match('/^"origin" "([-0-9]+) ([-0-9]+) ([-0-9]+)"$/', $line, $match)) {
+    } else if (preg_match('/^"origin" "([-0-9.]+) ([-0-9.]+) ([-0-9.]+)"$/', $line, $match)) {
 	$ret .= '"origin" "'.($match[1]+$shifts[0]).' '.($match[2]+$shifts[1]).' '.($match[3]+$shifts[2]).'"'."\n";
     } else if (preg_match('/^"target" "(.+)"$/', $line, $match)) {
 	$ret .= '"target" "'.$match[1].'_'.$uid.'"'."\n";
