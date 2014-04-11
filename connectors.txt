@@ -18,7 +18,7 @@ MAPDIR=./prefabs/
 
 # Define prefab MAP parts. (the area which is blocked by the prefab) and the actual files:
 #  MAP:map_part_name=blocking_area mapfile1 | mapfile2 | mapfile3 | ...
-#   map_part_name can be any unique string.
+#   map_part_name can be any unique string. use only a-zA-Z0-9_.
 #   blocking_area defines the cubical area inside which this prefab part resides.
 #   mapfile1 are the actual files in the MAPDIR. you can defined as many mapfiles as you want; one of them is chosen at random each time.
 #     each mapfile must be the same size and have the same connections, so mainly some small
@@ -49,7 +49,7 @@ START = intermission1
 
 # Define the map linking stuff.
 #  DEF:part_name = map_name / capping | linkage | linkage | ...
-#   part_name can be any unique string.
+#   part_name can be any unique string. use only a-zA-Z0-9_.
 #   map_name is a map_part_name defined above in the MAP-lines.
 #   capping is a "map_part_name:(shift)" used as capping off the piece, if the next piece would be blocked.
 #   linkage = fork / fork / fork / ...
