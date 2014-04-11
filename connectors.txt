@@ -11,14 +11,17 @@
 # -allow different goal types... need to check if the goal fits in there...
 
 
-# this is the dir where the .map-files are. only define one MAPDIR.
+# this is the dir where the prefab map-files are. only define one MAPDIR.
 MAPDIR=./prefabs/
 
 
-# Define prefab map extends (the area which is blocked by the prefab) and the files:
-# MAP:prefab_name=blocking_area mapfile1 | mapfile2 | mapfile3 | ...
-# each mapfile must be the same size and have the same connections, so mainly some small
-# structural differences are allowed.
+# Define prefab MAP parts. (the area which is blocked by the prefab) and the actual files:
+#  MAP:map_part_name=blocking_area mapfile1 | mapfile2 | mapfile3 | ...
+#   map_part_name can be any unique string.
+#   blocking_area defines the cubical area inside which this prefab part resides.
+#   mapfile1 are the actual files in the MAPDIR. you can defined as many mapfiles as you want; one of them is chosen at random each time.
+#     each mapfile must be the same size and have the same connections, so mainly some small
+#     structural differences are allowed.
 
 #   name        size                       map(s)
 MAP:start1.map=(-64,-64,-64)-(192,128,192) start1.map
@@ -36,26 +39,33 @@ MAP:ramp_b.map=(-256,-64,-128)-(0,192,128) ramp_b.map
 MAP:intermission1.map=(0,0,0)-(0,0,0)      intermission_t1.map
 MAP:intermission2.map=(0,0,0)-(0,0,0)      intermission_t2.map
 
-# special tag, START. we'll start the connector from this.
-# could be a comma separated list. We'll choose one of them to start with.
+# Define the START. This is a DEF (defined below) which is used to start the generation.
+# could be a comma separated list. We'll choose one of them at random.
 START = intermission1
-# or we can define as many of these as we want.
+# or we can define as many of these as we want - we'll pick one at random when starting the generation.
 
 #START = test
 
-# define the map stuff.
-# DEF:part_name = prefab_name | linkage | linkage | ...
-# linkage = fork / fork / fork / ...
-# fork = "NONE" or "part_name:(shift)"
-# NONE ends the connection.
+# Define the map linking stuff.
+#  DEF:part_name = map_name / capping | linkage | linkage | ...
+#   part_name can be any unique string.
+#   map_name is a map_part_name defined above in the MAP-lines.
+#   capping is a "map_part_name:(shift)" used as capping off the piece, if the next piece would be blocked.
+#   linkage = fork / fork / fork / ...
+#   fork = "NONE" or "part_name:(shift)"
+#     NONE ends the connection.
 #
 # for each linkage, a random fork is taken.
 
-# start
+# this means we use a "start1.map" MAP, as defined above. We'll mark the region defined in there as blocked by the prefab, and insert
+# the prefab into the course. Then we'll pick one of the slash-separated parts, and adjust our current coordinate by the amount defined.
 DEF:start1 = start1.map | road_a_n:(0, 128, 0) / turn_a_n_w:(0, 128, 0) / turn_a_n_e:(256, 384, 0) / hump_a_n:(0, 128, 0) / ramp_a_n:(0, 128, 0)
 
-# we actually start from here, because we need to put the intermissions in place, once per level.
+# we actually start from here, because we need to put the intermissions in place.
+# our starting coordinate is at (0,0,0).
+# first, put in intermission1.map, then go to intermission2 DEF, moving our coordinate to (+0,+0,+0)
 DEF:intermission1 = intermission1.map | intermission2:(0,0,0)
+# put in intermission2.map, then go to start1 DEF, moving our coordinate to (+0, +0, +0)
 DEF:intermission2 = intermission2.map | start1:(0,0,0)
 
 
