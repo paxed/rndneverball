@@ -3,6 +3,7 @@
 
 #
 # TODO:
+# -better config format. this is getting cumbersome.
 # -weights for the forks: 20*NONE / 3*link / link2
 # -need a way to repeat a DEF selection X times, eg:
 #  linkage = fork1:(size) + fork2:(size) / fork3:(size)

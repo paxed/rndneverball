@@ -1,11 +1,5 @@
 <?php
 
-/*
- TODO:
-
--handle moving parts
-*/
-
 $prefab_cache = array();
 
 function sort6($size)
