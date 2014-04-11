@@ -6,6 +6,8 @@
 -handle moving parts
 */
 
+$prefab_cache = array();
+
 function sort6($size)
 {
   if ($size[0] > $size[3]) {
@@ -237,10 +239,10 @@ function make_seed()
 
 function output_map($config, $maxlen, &$map_length, $seed=NULL)
 {
+  global $prefab_cache;
+
   if ($seed)
     srand($seed);
-
-  $fcache = array();
 
   $rndmap = build_map($config, $maxlen);
 
@@ -260,16 +262,16 @@ function output_map($config, $maxlen, &$map_length, $seed=NULL)
 
     $ret .= " // random .map part: ".$fname." @ (".$tmp[0].", ".$tmp[1].", ".$tmp[2].")\n";
 
-    if (!isset($fcache[$fname])) {
+    if (!isset($prefab_cache[$fname])) {
 	if (file_exists($fname)) {
-	    $fcache[$fname] = @file($fname);
+	    $prefab_cache[$fname] = @file($fname);
 	} else {
 	    $ret .= " // .map ERROR: Nonexistent map file: ".$fname."\n";
 	    return $ret;
 	}
     }
 
-    $mapfiledata = $fcache[$fname];
+    $mapfiledata = $prefab_cache[$fname];
 
     foreach (shift_mapdata($mapfiledata, $tmp) as $line) {
       $ret .= $line;
