@@ -147,17 +147,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   chdir($tempdir_base);
 
-  system('tar -cf rndmap-'.$coursebase.'.tar '.implode(' ', $f));
-  system('gzip rndmap-'.$coursebase.'.tar');
+  $files = implode(' ', $f);
 
-  $puttfile = 'rndmap-'.$coursebase.'.tar.gz';
+  switch ($_POST['packer']) {
+  default:
+  case 'tar.gz':
+      system('tar -cf rndmap-'.$coursebase.'.tar '.$files);
+      system('gzip rndmap-'.$coursebase.'.tar');
+      $puttfile = 'rndmap-'.$coursebase.'.tar.gz';
+      break;
+  case 'zip':
+      system('zip -q rndmap-'.$coursebase.'.zip '.$files);
+      $puttfile = 'rndmap-'.$coursebase.'.zip';
+      break;
+  }
 
-  header('Content-Type: binary/octet-stream');
+  header('Content-Type: application/octet-stream');
   header('Content-Length: '.filesize($puttfile));
   header('Content-Disposition: attachment; filename="'.$puttfile.'"');
-  readfile($puttfile);
+  header('Content-Transfer-Encoding: binary');
+  @readfile($puttfile);
 
-  system('rm -rf '.$puttfile.' '.implode(' ', $f));
+  system('rm -rf '.$puttfile.' '.$files);
   system('rm -rf '.$tempdir);
   exit;
 
@@ -180,7 +191,7 @@ header('Content-type: text/html; charset=iso-8859-1');
 <img src="rnd2.png" alt="example level">
 </span>
 
-<p>Just click Generate, and you'll get a tar.gz packed file which contains the course .map files, and the txt file describing the course.
+<p>Just click Generate, and you'll get a packed file which contains the course .map files, and the txt file describing the course.
 Unpack the files into the neverputt data-dir.
 <p>You will have to compile the map-files into sol-files with the mapc-program that comes with neverputt.
 <p>
@@ -201,7 +212,7 @@ for x in data/rndmap-12345/*.map; do ./mapc "$x" data; done
 <option value="3">Long</option>
 <option value="4">Ridiculous</option>
 </select>
- <label><input type="checkbox" name="lev_prog" checked>Progressive</label>
+ <label title="Earlier holes will generally be shorter and later holes longer"><input type="checkbox" name="lev_prog" checked>Progressive</label>
 </td></tr>
 
 <tr><td>Level pars:</td><td><select name="lev_par">
@@ -211,8 +222,16 @@ for x in data/rndmap-12345/*.map; do ./mapc "$x" data; done
 </select>
 </td></tr>
 
+<tr><td colspan="2"><input type="Submit" value="Generate"></td></tr>
 
-<tr><td><input type="Submit" value="Generate"></td><td></td></tr>
+<tr><td colspan="2"><hr></td></tr>
+
+<tr><td>File type:</td><td><select name="packer">
+<option value="tar.gz">tar.gz</option>
+<option value="zip" selected>Zip</option>
+</select>
+</td></tr>
+
 </table>
 </form>
 
