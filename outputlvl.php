@@ -6,12 +6,16 @@ ini_set('display_errors','On');
 
 include 'mkmap.php';
 
-$config = read_config("connectors.txt");
+$config = read_config("connectors.txt", 1);
 
-#print_r($config);
-#exit;
+print "\n<pre>\n";
+
+print_r($config);
+
 
 $map_length = 0;
 $maplen = 100;
 
-print output_map($config, $maplen, $map_length);
+$seed = rand();
+
+print output_map($config, $maplen, $map_length, $seed);

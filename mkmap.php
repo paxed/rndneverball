@@ -22,64 +22,287 @@ function sort6($size)
   return $size;
 }
 
+function shift_coords3($coords, $shifts)
+{
+    $coords[0] = ($coords[0] + $shifts[0]);
+    $coords[1] = ($coords[1] + $shifts[1]);
+    $coords[2] = ($coords[2] + $shifts[2]);
 
-function read_config($fname)
+    $coords[3] = ($coords[3] + $shifts[0]);
+    $coords[4] = ($coords[4] + $shifts[1]);
+    $coords[5] = ($coords[5] + $shifts[2]);
+
+    $coords[6] = ($coords[6] + $shifts[0]);
+    $coords[7] = ($coords[7] + $shifts[1]);
+    $coords[8] = ($coords[8] + $shifts[2]);
+    return $coords;
+}
+
+function shift_coords2($coords, $shifts)
+{
+    $coords[0] = ($coords[0] + $shifts[0]);
+    $coords[1] = ($coords[1] + $shifts[1]);
+    $coords[2] = ($coords[2] + $shifts[2]);
+
+    $coords[3] = ($coords[3] + $shifts[0]);
+    $coords[4] = ($coords[4] + $shifts[1]);
+    $coords[5] = ($coords[5] + $shifts[2]);
+    return $coords;
+}
+
+function shift_coords1($coords, $shifts)
+{
+    $coords[0] = ($coords[0] + $shifts[0]);
+    $coords[1] = ($coords[1] + $shifts[1]);
+    $coords[2] = ($coords[2] + $shifts[2]);
+    return $coords;
+}
+
+function rotate_coords3($coords, $rotate)
+{
+    switch ($rotate) {
+    default:
+    case 0: break;
+    case 1:
+       $tmp = $coords[0];
+       $coords[0] = $coords[1];
+       $coords[1] = ($tmp * -1);
+
+       $tmp = $coords[3];
+       $coords[3] = $coords[4];
+       $coords[4] = ($tmp * -1);
+
+       $tmp = $coords[6];
+       $coords[6] = $coords[7];
+       $coords[7] = ($tmp * -1);
+       break;
+    case 2:
+       $coords[0] = $coords[0] * -1;
+       $coords[1] = $coords[1] * -1;
+
+       $coords[3] = $coords[3] * -1;
+       $coords[4] = $coords[4] * -1;
+
+       $coords[6] = $coords[6] * -1;
+       $coords[7] = $coords[7] * -1;
+       break;
+    case 3:
+       $tmp = $coords[0];
+       $coords[0] = ($coords[1] * -1);
+       $coords[1] = $tmp;
+
+       $tmp = $coords[3];
+       $coords[3] = ($coords[4] * -1);
+       $coords[4] = $tmp;
+
+       $tmp = $coords[6];
+       $coords[6] = ($coords[7] * -1);
+       $coords[7] = $tmp;
+       break;
+    }
+    return $coords;
+}
+
+function rotate_coords2($coords, $rotate)
+{
+    switch ($rotate) {
+    default:
+    case 0: break;
+    case 1:
+       $tmp = $coords[0];
+       $coords[0] = $coords[1];
+       $coords[1] = ($tmp * -1);
+
+       $tmp = $coords[3];
+       $coords[3] = $coords[4];
+       $coords[4] = ($tmp * -1);
+       break;
+    case 2:
+       $coords[0] = $coords[0] * -1;
+       $coords[1] = $coords[1] * -1;
+
+       $coords[3] = $coords[3] * -1;
+       $coords[4] = $coords[4] * -1;
+       break;
+    case 3:
+       $tmp = $coords[0];
+       $coords[0] = ($coords[1] * -1);
+       $coords[1] = $tmp;
+
+       $tmp = $coords[3];
+       $coords[3] = ($coords[4] * -1);
+       $coords[4] = $tmp;
+       break;
+    }
+    return $coords;
+}
+
+function rotate_coords1($coords, $rotate)
+{
+    switch ($rotate) {
+    default:
+    case 0: break;
+    case 1:
+       $tmp = $coords[0];
+       $coords[0] = $coords[1];
+       $coords[1] = ($tmp * -1);
+       break;
+    case 2:
+       $coords[0] = $coords[0] * -1;
+       $coords[1] = $coords[1] * -1;
+       break;
+    case 3:
+       $tmp = $coords[0];
+       $coords[0] = ($coords[1] * -1);
+       $coords[1] = $tmp;
+       break;
+    }
+    return $coords;
+}
+
+
+function parse_coord_int($str)
+{
+    if (preg_match('/^\(\s*(-?[0-9]+)\s*,\s*(-?[0-9]+)\s*,\s*(-?[0-9]+)\s*\)$/', trim($str), $coords)) {
+	array_shift($coords);
+	return $coords;
+    }
+    print "ERROR parsing coord $str\n";
+    return array(0,0,0);
+}
+
+function parse_size_int($str)
+{
+    if (preg_match('/^(.+\))\s*-\s*(\(.+)$/', $str, $parts)) {
+	return array_merge(parse_coord_int($parts[1]), parse_coord_int($parts[2]));
+    }
+    return array(0,0,0,0,0,0);
+}
+
+function config_test($config)
+{
+    if (!isset($config['START'])) print '<p>START not defined.';
+    if (!isset($config['MAPDIR'])) print '<p>MAPDIR not defined.';
+    if (!file_exists($config['MAPDIR'])) print '<p>MAPDIR does not exist.';
+
+    foreach ($config['DEFINE'] as $k => $v) {
+	if (count($v['prefab']) == 0) print "<p>DEFINE $k has no prefabs.";
+	foreach ($v['prefab'] as $f) {
+	    if (!file_exists($f)) print "<p>File ".$f." does not exist.";
+	}
+	foreach ($v['next'] as $i) {
+	    if (!isset($config['DEFINE'][$i])) print '<p>join '.$i.' used, but not DEFINEd.';
+	}
+    }
+}
+
+function config_define_part(&$config, $cur_define, $param, $data)
+{
+    switch ($param) {
+    case 'size':
+	$config['DEFINE'][$cur_define]['size'] = parse_size_int($data);
+	$config['DEFINE'][$cur_define]['use_size'] = 1;
+	break;
+    case 'cost':
+	$config['DEFINE'][$cur_define]['cost'] = intval($data);
+	break;
+    case 'prefab':
+	$config['DEFINE'][$cur_define]['prefab'] = array_merge(glob($config['MAPDIR'].trim($data)), $config['DEFINE'][$cur_define]['prefab']);
+	break;
+    case 'next':
+	$config['DEFINE'][$cur_define]['next'][] = trim($data);
+	$config['DEFINE'][$cur_define]['n_nexts']++;
+	break;
+    case 'exit':
+	preg_match('/^(.+?)(,\s*r\s*=\s*([+-]?[0-9]+))?\s*$/', $data, $tmp);
+	$config['DEFINE'][$cur_define]['exit'][] = array(
+							 'coord'=>parse_coord_int($tmp[1]),
+							 'rot'=>(isset($tmp[3]) ? intval($tmp[3]) : 0)
+							 );
+    default: break;
+    }
+}
+
+function read_config($fname, $test=0)
 {
 
   $config = array();
 
   $cnf = file($fname);
 
+  $config['DEFINE'] = array();
+
+  $state = 0;
+  $cur_define = '';
+
   foreach ($cnf as $line) {
-    if (preg_match('/^[ \t]*#/', $line)) continue;
-    if (preg_match('/^[ \t]*START[ \t]*=[ \t]*(.+)$/', $line, $match)) {
-	$config['START'] = array_merge(isset($config['START']) ? $config['START'] : array(), explode(",", $match[1]));
-    } else if (preg_match('/^[ \t]*MAPDIR[ \t]*=[ \t]*(.+)$/', $line, $match)) {
-      $config['MAPDIR'] = trim($match[1]);
-    } else if (preg_match('/^[ \t]*MAP:(.+)[ \t]*=[ \t]*(.+)$/', $line, $match)) {
-      $mapname = $match[1];
-      array_shift($match);
-      preg_match('/\((-?[0-9]+),(-?[0-9]+),(-?[0-9]+)\)-\((-?[0-9]+),(-?[0-9]+),(-?[0-9]+)\)[ \t]+(.+)$/', $match[1], $size);
-      array_shift($size);
-      $config['MAPS'][$mapname]['files'] = explode("|", $size[6]);
-      unset($size[6]);
-
-      $size = sort6($size);
-
-      if ($size[0] == $size[3] && $size[1] == $size[4] && $size[2] == $size[5]) { unset($size); }
-      else
-	  $config['MAPS'][$mapname]['size'] = $size;
-    } else if (preg_match('/^[ \t]*DEF:(.+)[ \t]*=[ \t]*(.+)$/', $line, $match)) {
-      $mapname = trim($match[1]);
-      $tmp = explode("|", $match[2]);
-
-      $mf = explode("/", trim($tmp[0]));
-
-      $config['PARTS'][$mapname]['mapfile'] = trim($mf[0]);
-      array_shift($mf);
-      $config['PARTS'][$mapname]['caps'] = $mf;
-      array_shift($tmp);
-      foreach ($tmp as $l) {
-	$config['PARTS'][$mapname]['linkage'][] = explode("/", $l);
+      if ($line==="\n" || preg_match('/^\s*#/', $line)) continue;
+      if ($state == 0 || $state == 1) {
+	  if (preg_match('/^\s*START\s*=\s*(.+)$/', $line, $match)) {
+	      $config['START'] = $match[1];
+	  } else if (preg_match('/^\s*MAPDIR\s*=\s*(.+)$/', $line, $match)) {
+	      $config['MAPDIR'] = trim($match[1]);
+	  } else if (preg_match('/^\s*DEFCAP\s*=\s*(.+)$/', $line, $match)) {
+	      $default_capping = trim($match[1]);
+	  } else if (preg_match('/^\s*DEFINE\s*=\s*(.+)$/', $line, $match)) {
+	      $cur_define = trim($match[1]);
+	      $state = 1;
+	      if (preg_match('/^(.+){$/', $cur_define, $match)) {
+		  $cur_define = trim($match[1]);
+		  $state = 2;
+	      }
+	      $config['DEFINE'][$cur_define] = array(
+						     'size' => array(0,0,0,0,0,0),
+						     'use_size' => 0,
+						     'prefab' => array(),
+						     'next' => array(),
+						     'n_nexts' => 0,
+						     'exit' => array(),
+						     'cap' => $default_capping,
+						     'cost' => 1
+						     );
+	      continue;
+	  } else if ($state == 1 && preg_match('/^\s*{/', $line, $match)) {
+	      $state = 2;
+	      continue;
+	  } else {
+	      print 'Error parsing config file.';
+	      exit;
+	  }
+      } else if ($state == 2) {
+	  if (preg_match('/^\s*}/', $line)) {
+	      if (count($config['DEFINE'][$cur_define]['exit']) == 0) {
+		  $config['DEFINE'][$cur_define]['exit'][] = array('coord'=>array(0,0,0),'rot'=>0);
+	      }
+	      $state = 0;
+	      continue;
+	  } else if (preg_match('/^\s*(\S+)\s*:(.+)$/', $line, $match)) {
+	      config_define_part($config, $cur_define, $match[1], $match[2]);
+	  }
       }
-    } else if (!preg_match('/^[ \t]*$/', $line)) {
-    	print "Error while reading the config file. Sorry.";
-	exit;
-    }
   }
+
+  if ($test) config_test($config);
+
   return $config;
 }
 
-function shift_mapdata($data, $shifts, $uid)
+function shift_mapdata($data, $shifts, $uid, $rotate=0)
 {
   $ret = '';
   foreach ($data as $line) {
     if (preg_match('/^\( (-?[0-9.]+) (-?[0-9.]+) (-?[0-9.]+) \) \( (-?[0-9.]+) (-?[0-9.]+) (-?[0-9.]+) \) \( (-?[0-9.]+) (-?[0-9.]+) (-?[0-9.]+) \) (.+)$/', $line, $match)) {
-	$ret .= '( '.($match[1]+$shifts[0]).' '.($match[2]+$shifts[1]).' '.($match[3]+$shifts[2]).' ) ( '.
-	    ($match[4]+$shifts[0]).' '.($match[5]+$shifts[1]).' '.($match[6]+$shifts[2]).' ) ( '.
-	    ($match[7]+$shifts[0]).' '.($match[8]+$shifts[1]).' '.($match[9]+$shifts[2]).' ) '.$match[10]."\n";
+	array_shift($match);
+	$match = rotate_coords3($match, $rotate);
+	$match = shift_coords3($match, $shifts);
+	$ret .= '( '.($match[0]).' '.($match[1]).' '.($match[2]).' ) ( '.
+	    ($match[3]).' '.($match[4]).' '.($match[5]).' ) ( '.
+	    ($match[6]).' '.($match[7]).' '.($match[8]).' ) '.$match[9]."\n";
     } else if (preg_match('/^"origin" "([-0-9.]+) ([-0-9.]+) ([-0-9.]+)"$/', $line, $match)) {
-	$ret .= '"origin" "'.($match[1]+$shifts[0]).' '.($match[2]+$shifts[1]).' '.($match[3]+$shifts[2]).'"'."\n";
+       array_shift($match);
+       $match = rotate_coords1($match, $rotate);
+       $match = shift_coords1($match, $shifts);
+       $ret .= '"origin" "'.($match[0]).' '.($match[1]).' '.($match[2]).'"'."\n";
     } else if (preg_match('/^"target" "(.+)"$/', $line, $match)) {
 	$ret .= '"target" "'.$match[1].'_'.$uid.'"'."\n";
     } else if (preg_match('/^"targetname" "(.+)"$/', $line, $match)) {
@@ -101,7 +324,7 @@ function check_collision($a, $b)
   return 0;
 }
 
-function build_map($config, $maxlen=NULL)
+function build_map($config, $maxlen=999999)
 {
   $ret = array();
 
@@ -109,116 +332,77 @@ function build_map($config, $maxlen=NULL)
   $open_ends = array();
   $used_space = array();
 
-  $curmap = $config['START'][array_rand($config['START'])];
+  $curmap = $config['START'];
+  $currot = 0;
 
-  $open_ends[] = array($curmap, 0,0,0);
+  $open_ends[] = array('curmap'=>$curmap, 'coord'=>array(0,0,0), 'rot' => 0);
 
   do {
     $tmp = array_pop($open_ends);
 
-    $prevmap = $curmap;
-    $curmap = $tmp[0];
-    array_shift($tmp);
-    $prev_pos = $curpos;
-    $curpos = $tmp;
+    $curmap = $tmp['curmap'];
+    $curpos = $tmp['coord'];
+    $currot = $tmp['rot'];
 
-    if (!isset($config['PARTS'][$curmap])) {
-	print " // .map ERROR: Undefined map part: ".$curmap."\n";
-	exit;
-    }
+    $ret[] = array('msg' => ".map CURMAP: $curmap");
 
-    if ($curpos[0] < -64000 || $curpos[0] > 64000 ||
-	$curpos[1] < -64000 || $curpos[1] > 64000 ||
-	$curpos[2] < -64000 || $curpos[2] > 64000) {
-	print " // .map ERROR: Coords out of bounds, blocking...\n";
+    $blocked = 0;
+    $cost = $config['DEFINE'][$curmap]['cost'];
+
+    $maxlen -= $cost;
+
+    if ($maxlen <= 0) {
+	$ret[] = array('msg' => ".map maxlen reached");
 	$blocked = 1;
-    } else {
-
-      $blocked = 0;
-
-      if (isset($maxlen) && (--$maxlen <= 0)) $blocked = 1;
-      else {
+    } else if ($curpos[0] < -64000 || $curpos[0] > 64000 ||
+	       $curpos[1] < -64000 || $curpos[1] > 64000 ||
+	       $curpos[2] < -64000 || $curpos[2] > 64000) {
+	$ret[] = array('msg' => '.map ERROR: Coords out of bounds');
+	$blocked = 1;
+    } else if ($config['DEFINE'][$curmap]['use_size']) {
 	foreach ($used_space as $used) {
-	  $tmp = $config['MAPS'][$config['PARTS'][$curmap]['mapfile']]['size'];
-	  if (!isset($tmp)) break;
-	  $tmp[0] += intval($curpos[0]);
-	  $tmp[1] += intval($curpos[1]);
-	  $tmp[2] += intval($curpos[2]);
-
-	  $tmp[3] += intval($curpos[0]);
-	  $tmp[4] += intval($curpos[1]);
-	  $tmp[5] += intval($curpos[2]);
-	  if (check_collision($used, $tmp)) {
-	    $blocked = 1;
-	    break;
-	  }
+	    $tmp = $config['DEFINE'][$curmap]['size'];
+	    $tmp = rotate_coords2($tmp, $currot);
+	    $tmp = shift_coords2($tmp, $curpos);
+	    $tmp = sort6($tmp);
+	    if (check_collision($used, $tmp)) {
+		$ret[] = array('msg' => '.map collision: ('.join(',', $tmp).')');
+		$blocked = 1;
+		break;
+	    }
 	}
-      }
     }
 
-    if (!$blocked) {
-      $tmp = $config['MAPS'][$config['PARTS'][$curmap]['mapfile']]['files'];
-      if (is_array($tmp))
-	$fname = $config['MAPDIR'].trim($tmp[array_rand($tmp)]);
-      else $fname = $tmp;
-      $ret[] = array($fname, $curpos[0], $curpos[1], $curpos[2]);
+    if ($blocked) {
+	$curmap = $config['DEFINE'][$curmap]['cap'];
+    }
 
-      if (isset($config['MAPS'][$config['PARTS'][$curmap]['mapfile']]['size'])) {
-        $tmp = $config['MAPS'][$config['PARTS'][$curmap]['mapfile']]['size'];
-	$tmp[0] += intval($curpos[0]);
-	$tmp[1] += intval($curpos[1]);
-	$tmp[2] += intval($curpos[2]);
+    $prefabs = $config['DEFINE'][$curmap]['prefab'];
+    $fname = $prefabs[array_rand($prefabs)];
+    $ret[] = array('prefab' => $fname, 'coord' => $curpos, 'rot' => $currot);
 
-	$tmp[3] += intval($curpos[0]);
-	$tmp[4] += intval($curpos[1]);
-	$tmp[5] += intval($curpos[2]);
+    if ($config['DEFINE'][$curmap]['use_size']) {
+	$tmp = $config['DEFINE'][$curmap]['size'];
+	$tmp = rotate_coords2($tmp, $currot);
+	$tmp = shift_coords2($tmp, $curpos);
+	$used_space[] = sort6($tmp);
+	$ret[] = array('msg' => '.map used_space: ('.join(',', $tmp).')');
+    }
 
-	//$tmp = sort6($tmp);
-
-	$used_space[] = $tmp;
-      }
-
-      foreach ($config['PARTS'][$curmap]['linkage'] as $l) {
-	$tmp = $l;
-	//$tmp = split("/", $l);
-	$x = trim($tmp[array_rand($tmp)]);
-	if (preg_match('/^NONE$/', $x)) continue;
-	if (preg_match('/^(.+):\((-?[0-9]+), *(-?[0-9]+), *(-?[0-9]+)\)$/', $x, $tmp)) {
-	  array_shift($tmp);
-	  $tmp[1] += $curpos[0];
-	  $tmp[2] += $curpos[1];
-	  $tmp[3] += $curpos[2];
-	  $open_ends[] = $tmp;
+    if ($config['DEFINE'][$curmap]['n_nexts']) {
+	$nxt = $config['DEFINE'][$curmap]['next'];
+	foreach ($config['DEFINE'][$curmap]['exit'] as $e) {
+	    $n = $nxt[array_rand($nxt)];
+	    $tmpcoord = $e['coord'];
+	    $tmpcoord = rotate_coords1($tmpcoord, $currot);
+	    $tmpcoord = shift_coords1($tmpcoord, $curpos);
+	    $tmprot = (($currot + $e['rot']) % 4);
+	    $open_ends[] = array('curmap' => $n,
+				 'coord' => $tmpcoord,
+				 'rot' => $tmprot
+				 );
+	    $ret[] = array('msg' => ".map: $n, (".join(',', $tmpcoord)."), r=$tmprot");
 	}
-      }
-    } else { /* it's blocked by something */
-
-      //array_pop($ret);
-
-      //array_shift($curpos);
-
-      $tmp = $config['MAPS'][$config['PARTS'][$prevmap]['mapfile']]['size'];
-      if (isset($tmp)) {
-	$tmp[0] += intval($prev_pos[0]);
-	$tmp[1] += intval($prev_pos[1]);
-	$tmp[2] += intval($prev_pos[2]);
-
-	$tmp[3] += intval($prev_pos[0]);
-	$tmp[4] += intval($prev_pos[1]);
-	$tmp[5] += intval($prev_pos[2]);
-
-	$used_space[] = $tmp;
-      }
-      $tmp = $config['PARTS'][$prevmap]['caps'];
-      $fname = $config['MAPDIR'].trim($tmp[array_rand($tmp)]);
-
-      if (preg_match('/^(.+):\((-?[0-9]+),(-?[0-9]+),(-?[0-9]+)\)$/', $fname, $x)) {
-	  array_shift($x);
-	  $x[1] += $prev_pos[0];
-	  $x[2] += $prev_pos[1];
-	  $x[3] += $prev_pos[2];
-	  $ret[] = $x;
-      } else $ret[] = array($fname, $prev_pos[0], $prev_pos[1], $prev_pos[2]);
     }
   } while (count($open_ends) > 0);
 
@@ -244,21 +428,24 @@ function output_map($config, $maxlen, &$map_length, $seed=NULL)
 
   $rndmap = build_map($config, $maxlen);
 
-  $map_length = count($rndmap);
+  $map_length = 0;
 
-  $ret = " // Random NeverPutt .map - http://bilious.alt.org/~paxed/rndneverball/\n";
-  $ret .= " // .map date: ".date("Y-m-d H:i:s")."\n";
-  if ($seed)
-    $ret .= " // .map seed: ".$seed."\n";
-  $ret .= " // .map maxlen: ".$maxlen."\n";
-  $ret .= " // .map blocks: ".$map_length."\n";
+  $ret = '';
 
   foreach ($rndmap as $tmp) {
 
-    $fname = $tmp[0];
-    array_shift($tmp);
+      if (isset($tmp['msg'])) {
+	  $ret .= " // ".$tmp['msg']."\n";
+	  continue;
+      }
 
-    $ret .= " // random .map part: ".$fname." @ (".$tmp[0].", ".$tmp[1].", ".$tmp[2].")\n";
+      $map_length++;
+
+    $fname = $tmp['prefab'];
+    $coord = $tmp['coord'];
+    $rot = $tmp['rot'];
+
+    $ret .= " // random .map part: ".$fname." @ (".join(', ', $coord)."), r=$rot\n";
 
     if (!isset($prefab_cache[$fname])) {
 	if (file_exists($fname)) {
@@ -270,8 +457,16 @@ function output_map($config, $maxlen, &$map_length, $seed=NULL)
     }
 
     $mapfiledata = $prefab_cache[$fname];
-    $ret .= shift_mapdata($mapfiledata, $tmp, $uid);
+    $ret .= shift_mapdata($mapfiledata, $coord, $uid, $rot);
     $uid++;
   }
-  return $ret;
+
+  $head = " // Random NeverPutt .map - http://bilious.alt.org/~paxed/rndneverball/\n";
+  $head .= " // .map date: ".date("Y-m-d H:i:s")."\n";
+  if ($seed)
+    $head .= " // .map seed: ".$seed."\n";
+  $head .= " // .map maxlen: ".$maxlen."\n";
+  $head .= " // .map blocks: ".$map_length."\n";
+
+  return $head.$ret;
 }
