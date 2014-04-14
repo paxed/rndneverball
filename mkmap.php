@@ -240,6 +240,8 @@ function read_config($fname, $test=0)
       if ($state == 0 || $state == 1) {
 	  if (preg_match('/^\s*START\s*=\s*(.+)$/', $line, $match)) {
 	      $config['START'] = $match[1];
+	  } else if (preg_match('/^\s*FINISH\s*=\s*(.+)$/', $line, $match)) {
+	      $config['FINISH'] = explode(',', $match[1]);
 	  } else if (preg_match('/^\s*MAPDIR\s*=\s*(.+)$/', $line, $match)) {
 	      $config['MAPDIR'] = trim($match[1]);
 	  } else if (preg_match('/^\s*DEFCAP\s*=\s*(.+)$/', $line, $match)) {
@@ -336,6 +338,7 @@ function build_map($config, $maxlen=999999)
   $currot = 0;
 
   $open_ends[] = array('curmap'=>$curmap, 'coord'=>array(0,0,0), 'rot' => 0);
+  $finish = 0;
 
   do {
     $tmp = array_pop($open_ends);
@@ -351,9 +354,15 @@ function build_map($config, $maxlen=999999)
 
     $maxlen -= $cost;
 
-    if ($maxlen <= 0) {
+    if (($maxlen <= 0) && !$finish) {
 	$ret[] = array('msg' => ".map maxlen reached");
-	$blocked = 1;
+	$open_ends = array();
+	$open_ends[] = array('curmap' => $config['FINISH'][array_rand($config['FINISH'])],
+			     'coord' => $tmpcoord,
+			     'rot' => $tmprot
+			     );
+	$finish = 1;
+	continue;
     } else if ($curpos[0] < -64000 || $curpos[0] > 64000 ||
 	       $curpos[1] < -64000 || $curpos[1] > 64000 ||
 	       $curpos[2] < -64000 || $curpos[2] > 64000) {

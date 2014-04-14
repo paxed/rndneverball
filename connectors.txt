@@ -6,8 +6,13 @@ MAPDIR=./prefabs/
 # name of the DEFINE where we start the generation from
 START=intermission1
 
+# a comma-separated list of DEFINE names where we end the generation.
+# picks one from the list at random when level is long enough.
+FINISH=goal
+
 # When a prefab placement is blocked, use this to "cap" it off.
-DEFCAP=goal
+# It should fit inside the smallest prefab size, with some room to spare.
+DEFCAP=goal_cap
 
 #
 #DEFINE=name_of_the_piece {
@@ -135,8 +140,15 @@ DEFINE=road_b {
 	      next: ramp_down
 }
 
-DEFINE=goal {
+DEFINE=goal_cap {
 	      size: (-64,0,-64)-(192,128,192)
 	      prefab: goal.map
+# no next stanzas defined, this ends the generation.
+}
+
+
+DEFINE=goal {
+	      size: (-192,0,-64)-(320,576,192)
+	      prefab: goal*.map
 # no next stanzas defined, this ends the generation.
 }
