@@ -150,17 +150,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $files = implode(' ', $f);
 
   switch ($_POST['packer']) {
-  default:
   case 'tar.gz':
+  default:
       system('tar -cf rndmap-'.$coursebase.'.tar '.$files);
       system('gzip rndmap-'.$coursebase.'.tar');
       $puttfile = 'rndmap-'.$coursebase.'.tar.gz';
+      $_POST['packer'] = 'tar.gz';
       break;
   case 'zip':
       system('zip -q rndmap-'.$coursebase.'.zip '.$files);
       $puttfile = 'rndmap-'.$coursebase.'.zip';
       break;
   }
+
+  setcookie('rndneverball-packer', $_POST['packer']);
 
   header('Content-Type: application/octet-stream');
   header('Content-Length: '.filesize($puttfile));
@@ -175,6 +178,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 header('Content-type: text/html; charset=iso-8859-1');
+
+function mk_select($name, $options, $selected='')
+{
+    $ret = '<select name="'.$name.'">'."\n";
+    foreach ($options as $opt) {
+	$ret .= '<option value="'.$opt['value'].'"';
+	if (isset($opt['selected']) ||
+	    $selected == $opt['name'] ||
+	    (isset($_COOKIE['rndneverball-'.$name]) && $_COOKIE['rndneverball-'.$name] == $opt['value']))
+	    $ret .= ' selected';
+	$ret .= '>'.$opt['name'].'</option>'."\n";
+    }
+    $ret .= '</select>'."\n";
+    return $ret;
+}
+
+$packer_opts = array(array('name' => 'Zip', 'value' => 'zip'),
+		     array('name' => 'tar.gz', 'value' => 'tar.gz'));
 
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -226,11 +247,7 @@ for x in data/rndmap-12345/*.map; do ./mapc "$x" data; done
 
 <tr><td colspan="2"><hr></td></tr>
 
-<tr><td>File type:</td><td><select name="packer">
-<option value="tar.gz">tar.gz</option>
-<option value="zip" selected>Zip</option>
-</select>
-</td></tr>
+<tr><td>File type:</td><td><?php print mk_select('packer', $packer_opts); ?></td></tr>
 
 </table>
 </form>
