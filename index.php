@@ -163,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       break;
   }
 
-  setcookie('rndneverball-packer', $_POST['packer']);
+  setcookie('rndneverball-packer', $_POST['packer'], time()+60*60*24*365);
 
   header('Content-Type: application/octet-stream');
   header('Content-Length: '.filesize($puttfile));
