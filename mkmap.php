@@ -238,35 +238,44 @@ function read_config($fname, $test=0)
   foreach ($cnf as $line) {
       if ($line==="\n" || preg_match('/^\s*#/', $line)) continue;
       if ($state == 0 || $state == 1) {
-	  if (preg_match('/^\s*START\s*=\s*(.+)$/', $line, $match)) {
-	      $config['START'] = $match[1];
-	  } else if (preg_match('/^\s*FINISH\s*=\s*(.+)$/', $line, $match)) {
-	      $config['FINISH'] = explode(',', $match[1]);
-	  } else if (preg_match('/^\s*MAPDIR\s*=\s*(.+)$/', $line, $match)) {
-	      $config['MAPDIR'] = trim($match[1]);
-	  } else if (preg_match('/^\s*DEFCAP\s*=\s*(.+)$/', $line, $match)) {
-	      $default_capping = trim($match[1]);
-	  } else if (preg_match('/^\s*DEFINE\s*=\s*(.+)$/', $line, $match)) {
-	      $cur_define = trim($match[1]);
-	      $state = 1;
-	      if (preg_match('/^(.+){$/', $cur_define, $match)) {
-		  $cur_define = trim($match[1]);
-		  $state = 2;
+	  if (preg_match('/^\s*([A-Z]+)\s*=\s*(.+)$/', $line, $match)) {
+	      switch ($match[1]) {
+	      case 'START':
+		  $config['START'] = $match[2];
+		  break;
+	      case 'FINISH':
+		  $config['FINISH'] = explode(',', $match[2]);
+		  break;
+	      case 'MAPDIR':
+		  $config['MAPDIR'] = trim($match[2]);
+		  break;
+	      case 'DEFCAP':
+		  $default_capping = trim($match[2]);
+		  break;
+	      case 'DEFINE':
+		  $cur_define = trim($match[2]);
+		  $state = 1;
+		  if (preg_match('/^(.+){$/', $cur_define, $match)) {
+		      $cur_define = trim($match[1]);
+		      $state = 2;
+		  }
+		  $config['DEFINE'][$cur_define] = array(
+							 'size' => array(0,0,0,0,0,0),
+							 'use_size' => 0,
+							 'prefab' => array(),
+							 'next' => array(),
+							 'n_nexts' => 0,
+							 'exit' => array(),
+							 'cap' => $default_capping,
+							 'cost' => 1
+							 );
+		  break;
+	      default:
+		  print 'Error parsing config file.';
+		  exit;
 	      }
-	      $config['DEFINE'][$cur_define] = array(
-						     'size' => array(0,0,0,0,0,0),
-						     'use_size' => 0,
-						     'prefab' => array(),
-						     'next' => array(),
-						     'n_nexts' => 0,
-						     'exit' => array(),
-						     'cap' => $default_capping,
-						     'cost' => 1
-						     );
-	      continue;
-	  } else if ($state == 1 && preg_match('/^\s*{/', $line, $match)) {
+	  } else if ($state == 1 && preg_match('/^\s*{\s*$/', $line, $match)) {
 	      $state = 2;
-	      continue;
 	  } else {
 	      print 'Error parsing config file.';
 	      exit;
